@@ -1,20 +1,22 @@
 package main
 
 import (
-  "fmt"
-  "os"
-  "bufio"
-  "encoding/json"
-  "github.com/urfave/cli"
-  "math/big"
-  "hash"
-  "crypto/elliptic"
-  "crypto/ecdsa"
-  "crypto/rand"
-  "crypto/sha256"
-  "golang.org/x/crypto/ripemd160"
-  "github.com/btcsuite/btcutil/base58"
-)
+	"bufio"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/json"
+	"fmt"
+	"hash"
+	"math/big"
+	"os"
+	"runtime"
+	"strings"
+
+	"github.com/btcsuite/btcutil/base58"
+	"github.com/urfave/cli"
+	"golang.org/x/crypto/ripemd160")
 
 type JSONWallet struct {
   PrivateKey string
@@ -114,15 +116,22 @@ func panic(mayday string) {
 // If neither are provided. We panic before any more processing
 // is handled
 func promptABTest(inquiry string, a string, b string) bool {
-  response := prompt(inquiry)
-  if(response == a){
-    return true
-  } else if (response == b) {
-    return false
-  } else {
-    panic("Don't understand what you said. Bye!")
-  }
-  return false
+	response := prompt(inquiry)
+
+	if runtime.GOOS == "windows" {
+		response = strings.TrimRight(response, "\r\n")
+	} else {
+		response = strings.TrimRight(response, "\n")
+	}
+
+	if strings.Compare(response, a) == 0 {
+		return true
+	} else if strings.Compare(response, b) == 0 {
+		return false
+	} else {
+		panic("Don't understand what you said. Bye!")
+	}
+	return false
 }
 
 func main() {
